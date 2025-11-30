@@ -37,11 +37,11 @@ export default function DashboardLayout({ children }) {
         { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
         { label: "Apply training", icon: GraduationCap, path: "/dashboard/training" },
         { label: "Writing task(s)", icon: FileText, path: "/dashboard/writing-tasks" },
-        { label: "Manual Activation", icon: KeySquare, path: "/dashboard/manual-activation" },
-        { label: "Awarded task(s)", icon: Award, path: "/dashboard/awarded-tasks" },
-        { label: "Submit task(s)", icon: Upload, path: "/dashboard/submit-tasks" },
-        { label: "Withdraw money", icon: Wallet, path: "/dashboard/withdraw-money" },
-        { label: "Withdrawal history", icon: History, path: "/dashboard/withdrawal-history" },
+        { label: "Activation", icon: KeySquare, path: "/dashboard/manual-activation" },
+        { label: "My Task(s)", icon: Award, path: "/dashboard/my-tasks" },
+        { label: "Accounts", icon: Upload, path: "/dashboard/accounts" },
+        { label: "Writing Tools", icon: Wallet, path: "/dashboard/writing-tools" },
+        { label: "Extras", icon: History, path: "/dashboard/extras" },
         { label: "Profile", icon: User, path: "/dashboard/profile" },
     ];
 
