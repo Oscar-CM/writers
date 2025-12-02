@@ -23,6 +23,38 @@ export default function MpesaActivationPage() {
   const kesConversionRate = 140; // Example rate
   const kesAmount = usdAmount * kesConversionRate;
 
+  const initiateSTKPush = async () => {
+    setMessage(null);
+    setLoading(true);
+
+    const amount = 5 * 140; // USD converted to KES
+
+    const { data: { session } } = await supabase.auth.getSession();
+
+    const res = await fetch("/api/mpesa-stk", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        phone: mpesaNumber,
+        amount,
+        user_id: session.user.id,
+      }),
+    });
+
+    const data = await res.json();
+    setLoading(false);
+
+    if (!data.success) {
+      setMessage("STK push failed. Check your number and try again.");
+      setMessageType("error");
+      return;
+    }
+
+    setMessage("STK push sent! Check your phone to complete payment.");
+    setMessageType("success");
+  };
+
+
   // Load profile
   useEffect(() => {
     const loadProfile = async () => {
@@ -135,9 +167,8 @@ export default function MpesaActivationPage() {
 
         {/* Message */}
         {message && (
-          <div className={`p-4 rounded-lg text-center ${
-            messageType === "success" ? "bg-green-100 text-green-700 border border-green-300" : ""
-          } ${messageType === "error" ? "bg-red-100 text-red-700 border border-red-400" : ""}`}>
+          <div className={`p-4 rounded-lg text-center ${messageType === "success" ? "bg-green-100 text-green-700 border border-green-300" : ""
+            } ${messageType === "error" ? "bg-red-100 text-red-700 border border-red-400" : ""}`}>
             {message}
           </div>
         )}
@@ -190,6 +221,15 @@ export default function MpesaActivationPage() {
                   required
                 />
               </div>
+
+              <button
+                onClick={initiateSTKPush}
+                disabled={loading}
+                className="w-full py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 flex items-center justify-center gap-2"
+              >
+                {loading ? <Loader2 className="animate-spin" /> : "Pay with M-Pesa (STK Push)"}
+              </button>
+
 
               <button
                 type="submit"

@@ -15,14 +15,13 @@ export default function WritingTasksPage() {
   const tasksPerPage = 6;
   const [totalTasks, setTotalTasks] = useState(0);
 
-  // Load user activation + tasks
+  // Load user & tasks
   useEffect(() => {
     const loadPage = async () => {
-      // auth
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return router.push("/login");
 
-      // profile
+      // Load profile
       const { data: userProfile } = await supabase
         .from("profiles")
         .select("full_name, activated")
@@ -31,14 +30,14 @@ export default function WritingTasksPage() {
 
       setProfile(userProfile);
 
-      // count total tasks
+      // Count tasks
       const { count } = await supabase
         .from("tasks")
         .select("*", { count: "exact", head: true });
 
       setTotalTasks(count);
 
-      // fetch tasks with pagination
+      // Paginated fetch
       const from = (page - 1) * tasksPerPage;
       const to = from + tasksPerPage - 1;
 
@@ -61,56 +60,65 @@ export default function WritingTasksPage() {
   const isActivated = profile?.activated === true;
 
   return (
-    <div className="p-6">
+    <div className="p-6 space-y-6 relative">
 
-      <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">
+      {/* TOP SECTION */}
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
         Writing Tasks
       </h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 relative">
+      {/* 🔥 Compact Activation Banner */}
+     {/* 🌸 Friendly Activation Banner */}
+{!isActivated && (
+  <div className="bg-gradient-to-r from-pink-400 to-orange-400 text-white p-4 rounded-xl shadow-lg text-center space-y-1">
+    <p className="font-bold text-lg">
+      ✨ Unlock Premium Writing Tasks
+    </p>
 
-        {!isActivated && (
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-10 flex flex-col items-center justify-center text-white rounded-xl">
-            <p className="text-lg font-bold">Your account is not activated</p>
-            <p className="text-sm">Activate your account to view tasks</p>
-            <Link
-              href="/dashboard/activation"
-              className="mt-3 px-4 py-2 bg-orange-500 rounded-lg"
-            >
-              Activate Now
-            </Link>
-          </div>
-        )}
+    <p className="text-sm opacity-90">
+      Activate your account to access full task details, bid on work, 
+      and start earning right away.
+    </p>
 
+    <Link
+      href="/dashboard/activation"
+      className="inline-block mt-2 px-5 py-2 rounded-full bg-white text-pink-600 font-semibold shadow-md hover:bg-pink-50 transition"
+    >
+      Activate My Account ✨
+    </Link>
+  </div>
+)}
+
+
+      {/* TASK GRID */}
+      <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6`}>
         {tasks.map((task) => (
           <div
             key={task.id}
-            className={`p-4 rounded-xl shadow border bg-white dark:bg-gray-800 
-              ${!isActivated ? "blur-sm pointer-events-none" : ""}`}
+            className={`p-4 rounded-xl shadow border bg-white dark:bg-gray-800 transition 
+              ${!isActivated ? "blur-sm" : ""}`}
           >
             <h2 className="font-bold text-lg mb-2 dark:text-white">{task.title}</h2>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              Level: {task.level}
-            </p>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              Word count: {task.word_count}
-            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-300">Level: {task.level}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-300">Word Count: {task.word_count}</p>
             <p className="text-sm text-gray-600 dark:text-gray-300">
               Deadline: {new Date(task.deadline).toLocaleString()}
             </p>
 
-            <Link
-              href={`/dashboard/writing-tasks/${task.id}`}
-              className="mt-3 block bg-orange-600 hover:bg-orange-700 text-white text-center py-2 rounded-lg"
-            >
-              View Details
-            </Link>
+            {isActivated && (
+              <Link
+                href={`/dashboard/writing-tasks/${task.id}`}
+                className="mt-3 block bg-orange-600 hover:bg-orange-700 text-white text-center py-2 rounded-lg"
+              >
+                View Details
+              </Link>
+            )}
           </div>
         ))}
       </div>
 
-      {/* Pagination */}
-      <div className="flex items-center justify-center gap-4 mt-8">
+      {/* PAGINATION */}
+      <div className="flex items-center justify-center gap-4 mt-6">
         <button
           className="px-4 py-2 bg-gray-300 dark:bg-gray-700 rounded-lg disabled:opacity-40"
           disabled={page === 1}
@@ -119,7 +127,7 @@ export default function WritingTasksPage() {
           Prev
         </button>
 
-        <span className="text-gray-700 dark:text-white font-bold">
+        <span className="font-bold text-gray-700 dark:text-white">
           Page {page} / {totalPages}
         </span>
 
@@ -131,7 +139,6 @@ export default function WritingTasksPage() {
           Next
         </button>
       </div>
-
     </div>
   );
 }

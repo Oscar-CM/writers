@@ -8,19 +8,20 @@ import {
   BookOpen,
   Calendar,
   User,
-  Code,
+  Wallet,
   Briefcase,
   Star,
   Mail,
-  Wallet,
-  AlertTriangle,
+  MessageCircle,
+  Send,
+  AlertTriangle
 } from "lucide-react";
 
 export default function DashboardPage() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Timer state (24 hours = 86400 seconds)
+  // Timer (24 hours)
   const [timeLeft, setTimeLeft] = useState(0);
 
   // Task counts
@@ -45,20 +46,17 @@ export default function DashboardPage() {
     loadProfile();
   }, []);
 
-  // ------------------------------
-  // 24-Hour Midnight Reset Timer
-  // ------------------------------
+  // Midnight refresh timer
   useEffect(() => {
     const updateCountdown = () => {
       const now = new Date();
-
       const midnight = new Date();
-      midnight.setHours(24, 0, 0, 0); // next midnight
+      midnight.setHours(24, 0, 0, 0);
 
       const diff = Math.floor((midnight - now) / 1000);
-      setTimeLeft(diff >= 0 ? diff : 86400); // reset if passed
+      setTimeLeft(diff >= 0 ? diff : 86400);
 
-      // Task reduction logic
+      // Dynamic tasks reduction
       const totalBasic = 439;
       const totalPremium = 246;
       const totalSeconds = 86400;
@@ -71,11 +69,10 @@ export default function DashboardPage() {
 
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
-
     return () => clearInterval(interval);
   }, []);
 
-  // Format time left
+  // Timer formatting
   const formatTime = (seconds) => {
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
@@ -86,9 +83,9 @@ export default function DashboardPage() {
   if (loading) return <p>Loading dashboard...</p>;
 
   const firstName = profile?.full_name?.split(" ")[0] || "User";
-  const totalTasks = basicTasks + premiumTasks;
-  const now = new Date().toLocaleString();
   const accountStatus = profile?.activated ? "ACTIVE" : "INACTIVE";
+  const now = new Date().toLocaleString();
+  const totalTasks = basicTasks + premiumTasks;
 
   return (
     <div className="space-y-6">
@@ -98,24 +95,21 @@ export default function DashboardPage() {
         Welcome back, <span className="text-[#FF7A00]">{firstName}</span> 👋
       </h1>
 
-      {/* Top Stats Row */}
+      {/* Top Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-
-        {/* Countdown */}
+        
         <DashboardCard
           icon={<Clock size={28} className="text-[#FF7A00]" />}
-          title="Time remaining to new task(s)"
+          title="Time remaining to new tasks"
           value={formatTime(timeLeft)}
         />
 
-        {/* Training */}
         <DashboardCard
           icon={<BookOpen size={28} className="text-blue-600" />}
-          title="TRAINING TAKING PLACE!"
+          title="TRAINING ONGOING"
           highlight
         />
 
-        {/* Date Time */}
         <DashboardCard
           icon={<Calendar size={28} className="text-green-600" />}
           title="Today's Date & Time"
@@ -137,58 +131,100 @@ export default function DashboardPage() {
         />
         <DashboardCard
           icon={<Star size={28} className="text-[#FF7A00]" />}
-          title="TOTAL"
+          title="Total Tasks"
           value={`${totalTasks} task(s)`}
         />
       </div>
 
-     <Link href="dashboard/training">
-  <div className="bg-[#FF7A00] text-white p-4 rounded-xl shadow text-center cursor-pointer hover:bg-[#e96d00] transition">
-    <p className="font-bold text-lg">ENROLL TRAINING?</p>
-    <p className="underline mt-1">CLICK TO ENROLL NOW</p>
-  </div>
-</Link>
-
-      {/* User Info Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        <DashboardCard icon={<Briefcase size={24} />} title="SAMPLE TASK(S)" value="CLICK TO ACCESS" highlight />
-        <DashboardCard icon={<Wallet size={24} />} title="TOTAL MONEY IN" value="KES 0.00" />
-        <DashboardCard icon={<Wallet size={24} />} title="ACCOUNT BALANCE" value="KES 0.00" />
-        <DashboardCard icon={<Wallet size={24} />} title="TOTAL CASH OUT" value="KES 0.00" />
-      </div>
-
-      {/* Warning Message */}
-      <div className="bg-red-100 border border-red-400 text-red-800 p-4 rounded-xl">
-        <div className="flex items-center gap-3 flex-wrap">
-          <AlertTriangle className="text-red-600" />
-          <p className="font-bold text-lg">TAKE CAUTION ⚠️⚠️</p>
+      {/* ENROLL TRAINING */}
+      <Link href="/dashboard/training">
+        <div className="bg-[#FF7A00] text-white p-4 rounded-xl shadow text-center cursor-pointer hover:bg-[#e96d00] transition">
+          <p className="font-bold text-lg">ENROLL TRAINING?</p>
+          <p className="underline mt-1">CLICK TO ENROLL NOW</p>
         </div>
-        <p className="mt-2 text-sm">
-          HOW TO ACTIVATE YOUR ACCOUNT (USE PROVIDED METHOD ONLY)  
-          <br /> 🔸 Click on the red button written “ACTIVATE NOW” above.
-        </p>
+      </Link>
+
+      {/* PRIORITY ACTION PANEL */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+
+        {/* Activate Account */}
+        <Link href="/dashboard/activate">
+          <div className={`p-4 rounded-xl shadow border cursor-pointer transition 
+            ${profile?.activated 
+              ? "bg-white hover:bg-gray-50" 
+              : "bg-red-50 border-red-400 text-red-700 hover:bg-red-100"}
+          `}>
+            <div className="flex items-center gap-3">
+              <AlertTriangle className={`${profile?.activated ? "text-gray-600" : "text-red-600"}`} />
+              <div>
+                <p className="font-bold">
+                  {profile?.activated ? "ACCOUNT VERIFIED" : "ACTIVATE ACCOUNT"}
+                </p>
+                {!profile?.activated && <p className="text-sm">Click to activate</p>}
+              </div>
+            </div>
+          </div>
+        </Link>
+
+        {/* WhatsApp */}
+        <Link href="https://wa.me/254718770747" target="_blank">
+          <div className="p-4 rounded-xl shadow border bg-green-50 hover:bg-green-100 cursor-pointer transition">
+            <div className="flex items-center gap-3">
+              <MessageCircle className="text-green-600" />
+              <div>
+                <p className="font-bold">WHATSAPP GROUP</p>
+                <p className="text-sm">Click to join</p>
+              </div>
+            </div>
+          </div>
+        </Link>
+
+        {/* Telegram */}
+        <Link href="https://t.me/yourchannel" target="_blank">
+          <div className="p-4 rounded-xl shadow border bg-blue-50 hover:bg-blue-100 cursor-pointer transition">
+            <div className="flex items-center gap-3">
+              <Send className="text-blue-600" />
+              <div>
+                <p className="font-bold">TELEGRAM CHANNEL</p>
+                <p className="text-sm">Click to join</p>
+              </div>
+            </div>
+          </div>
+        </Link>
       </div>
 
-      {/* Additional Info */}
+      {/* User Info & Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        <DashboardCard icon={<Mail size={24} />} title="OUR SUPPORT EMAIL" value="support@writemaster.com" />
+        <DashboardCard icon={<Wallet size={24} />} title="TOTAL IN" value="KES 0.00" />
+        <DashboardCard icon={<Wallet size={24} />} title="BALANCE" value="KES 0.00" />
+        <DashboardCard icon={<Wallet size={24} />} title="CASH OUT" value="KES 0.00" />
+        <DashboardCard icon={<Mail size={24} />} title="SUPPORT EMAIL" value="support@writemaster.com" />
         <DashboardCard icon={<User size={24} />} title="FULL NAME" value={profile.full_name} />
-        <DashboardCard icon={<Code size={24} />} title="ACCOUNT STATUS" value={accountStatus} highlightRed={!profile?.activated} />
-        <DashboardCard icon={<Code size={24} />} title="ACCOUNT LEVEL" value={accountStatus} highlightRed={!profile?.activated} />
+        <DashboardCard 
+          icon={<User size={24} />} 
+          title="ACCOUNT STATUS" 
+          value={accountStatus} 
+          highlightRed={!profile?.activated}
+        />
+        <DashboardCard 
+          icon={<Star size={24} />} 
+          title="ACCOUNT LEVEL" 
+          value={profile?.writing_level || "N/A"} 
+        />
       </div>
 
     </div>
   );
 }
 
-// ---------------------------------------
-// Dashboard Card Component
-// ---------------------------------------
+/* ---------------------------------------
+   Dashboard Card Component
+----------------------------------------*/
 function DashboardCard({ icon, title, value, highlight, highlightRed }) {
   return (
     <div
       className={`p-4 sm:p-5 rounded-xl border shadow-sm bg-white 
-        ${highlight ? "border-[#FF7A00] bg-[#FFF4E8]" : ""}
+        ${highlight ? "border-[#FF7A00] bg-[#FFF4E8]" : ""} 
         ${highlightRed ? "border-red-400 bg-red-50 text-red-700" : ""}
       `}
     >

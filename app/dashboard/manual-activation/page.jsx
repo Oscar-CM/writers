@@ -147,11 +147,11 @@ export default function ActivationPage() {
 
             {/* Flutterwave */}
             <PaymentCard
-              title="Flutterwave"
+              title="Mpesa STK"
               icon={<Globe size={32} className="text-purple-600" />}
               description="Supports African banks, mobile money & cards."
               button="Pay with Flutterwave"
-              onClick={() => alert("Flutterwave Integration Coming Next")}
+              onClick={() => router.push("/dashboard/activation/stk")}
             />
 
             {/* Payoneer */}
