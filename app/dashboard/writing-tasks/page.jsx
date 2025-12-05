@@ -81,7 +81,7 @@ export default function WritingTasksPage() {
     </p>
 
     <Link
-      href="/dashboard/activation"
+      href="/dashboard/manual-activation"
       className="inline-block mt-2 px-5 py-2 rounded-full bg-white text-pink-600 font-semibold shadow-md hover:bg-pink-50 transition"
     >
       Activate My Account ✨

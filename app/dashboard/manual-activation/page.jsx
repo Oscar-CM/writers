@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+
 import { supabase } from "../../../utils/supabaseClient";
+
 
 import {
   CreditCard,
@@ -102,19 +104,19 @@ export default function ActivationPage() {
       ) : (
         <>
           <h2 className="text-xl font-bold text-gray-800">
-            Choose Payment Method ($5 Activation)
+            Choose Activation Method ($5)
           </h2>
 
-          {/* Payment Methods */}
+          {/* Activation Methods */}
           <div className="space-y-4">
 
             {/* Stripe */}
             <PaymentCard
               title="Debit/Credit Card (Stripe)"
               icon={<CreditCard size={32} className="text-blue-600" />}
-              description="Pay securely using Visa, MasterCard, or American Express."
-              button="Pay with Card"
-              onClick={() => alert("Stripe Payment Coming Next")}
+              description="Activate using Visa, MasterCard, or American Express."
+              button="Activate with Card"
+              onClick={() => alert("Stripe Activation Coming Next")}
             />
 
             {/* PayPal */}
@@ -122,7 +124,7 @@ export default function ActivationPage() {
               title="PayPal"
               icon={<DollarSign size={32} className="text-blue-500" />}
               description="Use your PayPal balance or linked cards."
-              button="Pay with PayPal"
+              button="Activate with PayPal"
               onClick={() => alert("PayPal Setup Coming Next")}
             />
 
@@ -130,48 +132,39 @@ export default function ActivationPage() {
             <PaymentCard
               title="Cryptocurrency"
               icon={<Bitcoin size={32} className="text-yellow-500" />}
-              description="Acceptable: USDT (TRC20), BTC, ETH"
-              button="Pay with Crypto"
-              onClick={() => alert("Crypto payments coming next")}
+              description="Supported: USDT (TRC20), BTC, ETH"
+              button="Activate with Crypto"
+              onClick={() => alert("Crypto activation coming soon")}
             />
 
             {/* M-Pesa */}
             <PaymentCard
               title="M-Pesa (Kenya)"
               icon={<Smartphone size={32} className="text-green-600" />}
-              description="Instant mobile money payment via STK push."
-              button="Pay with M-Pesa"
+              description="Instant mobile activation via STK push."
+              button="Activate with M-Pesa"
               onClick={() => router.push("/dashboard/activation/mpesa")}
-
             />
 
-            {/* Flutterwave */}
+            {/* STK 
             <PaymentCard
               title="Mpesa STK"
               icon={<Globe size={32} className="text-purple-600" />}
-              description="Supports African banks, mobile money & cards."
-              button="Pay with Flutterwave"
+              description="Automatic prompt to your phone via STK."
+              button="Activate with STK"
               onClick={() => router.push("/dashboard/activation/stk")}
             />
+            */}
 
             {/* Payoneer */}
             <PaymentCard
               title="Payoneer"
               icon={<ArrowRight size={32} className="text-orange-600" />}
-              description="Manual invoice payment via Payoneer."
-              button="Request Payoneer Invoice"
-              onClick={() => alert("Payoneer Option Coming Next")}
+              description="Manual invoice activation via Payoneer."
+              button="Activate with Payoneer"
+              onClick={() => alert("Payoneer activation coming soon")}
             />
           </div>
-
-          {/* Manual Confirmation Button */}
-          <button
-            onClick={activateAccount}
-            disabled={loading}
-            className="mt-6 w-full md:w-auto px-6 py-3 bg-[#FF7A00] text-white rounded-xl font-bold hover:bg-[#e96d00] flex items-center justify-center gap-2"
-          >
-            {loading ? <Loader2 className="animate-spin" /> : "Confirm Activation Manually"}
-          </button>
         </>
       )}
     </div>

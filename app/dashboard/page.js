@@ -148,7 +148,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
 
         {/* Activate Account */}
-        <Link href="/dashboard/activate">
+        <Link href="/dashboard/manual-activation">
           <div className={`p-4 rounded-xl shadow border cursor-pointer transition 
             ${profile?.activated 
               ? "bg-white hover:bg-gray-50" 
@@ -167,7 +167,7 @@ export default function DashboardPage() {
         </Link>
 
         {/* WhatsApp */}
-        <Link href="https://wa.me/254718770747" target="_blank">
+        <Link href="https://chat.whatsapp.com/IgciTwEQhMn35pzARrrAo1" target="_blank">
           <div className="p-4 rounded-xl shadow border bg-green-50 hover:bg-green-100 cursor-pointer transition">
             <div className="flex items-center gap-3">
               <MessageCircle className="text-green-600" />
