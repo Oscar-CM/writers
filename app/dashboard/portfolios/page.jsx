@@ -6,19 +6,19 @@ import { motion, AnimatePresence } from "framer-motion";
 const projects = [
   {
     title: "Exquisite and Perfect",
-    image: "/capture1.png",
+    image: "/Capture1.png",
     url: "https://reeni-wp.laralink.com/home-v4/",
     price: "Ksh 5,000",
   },
   {
     title: "Perfect Path Out",
-    image: "/capture3.png",
+    image: "/Capture3.png",
     url: "https://reeni-wp.laralink.com/home-v17/",
     price: "Ksh 6,000",
   },
   {
     title: "Minimalistic Personal Portfolio",
-    image: "/capture2.png",
+    image: "/Capture2.png",
     url: "https://reeni-wp.laralink.com/home-v10/",
     price: "Ksh 5,000",
   },
