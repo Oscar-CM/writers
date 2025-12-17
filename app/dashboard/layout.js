@@ -16,6 +16,7 @@ import {
     History,
     User,
     LogOut,
+    Proportions,
     Menu,
     X
 } from "lucide-react";
@@ -41,6 +42,9 @@ export default function DashboardLayout({ children }) {
         { label: "My Task(s)", icon: Award, path: "/dashboard/my-tasks" },
         { label: "Accounts", icon: Upload, path: "/dashboard/accounts" },
         { label: "Writing Tools", icon: Wallet, path: "/dashboard/writing-tools" },
+        { label: "Writing Resources", icon: Proportions, path: "/dashboard/writing-resources" },
+        { label: "Ebooks", icon: KeySquare, path: "/dashboard/books" },
+        { label: "Pro Portfolios", icon: Award, path: "/dashboard/portfolios" },
         { label: "Extras", icon: History, path: "/dashboard/extras" },
         { label: "Profile", icon: User, path: "/dashboard/profile" },
     ];
@@ -102,6 +106,9 @@ export default function DashboardLayout({ children }) {
                 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} 
                 md:translate-x-0`}
             >
+                <div className="overflow-y-auto h-full subtle-scroll">
+
+               
 
                 {/* Close button (mobile) */}
                 <button
@@ -140,6 +147,7 @@ export default function DashboardLayout({ children }) {
                         Logout
                     </button>
                 </nav>
+                 </div>
             </aside>
 
             {/* ---------------------------------------

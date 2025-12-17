@@ -198,7 +198,7 @@ export default function DashboardPage() {
         <DashboardCard icon={<Wallet size={24} />} title="TOTAL IN" value="KES 0.00" />
         <DashboardCard icon={<Wallet size={24} />} title="BALANCE" value="KES 0.00" />
         <DashboardCard icon={<Wallet size={24} />} title="CASH OUT" value="KES 0.00" />
-        <DashboardCard icon={<Mail size={24} />} title="SUPPORT EMAIL" value="support@writemaster.com" />
+        <DashboardCard icon={<Mail size={24} />} title="SUPPORT EMAIL" value="info@masterwriters.org" />
         <DashboardCard icon={<User size={24} />} title="FULL NAME" value={profile.full_name} />
         <DashboardCard 
           icon={<User size={24} />} 
