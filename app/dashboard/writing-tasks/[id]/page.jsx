@@ -5,35 +5,33 @@ import { supabase } from "../../../../utils/supabaseClient";
 import { useRouter } from "next/navigation";
 import { use } from "react";
 
-
 export default function SingleTaskPage({ params }) {
   const router = useRouter();
   const { id } = use(params);
   const [task, setTask] = useState(null);
   const [profile, setProfile] = useState(null);
   const [bidDescription, setBidDescription] = useState("");
+  const [bidSuccess, setBidSuccess] = useState(""); // Success message state
 
   useEffect(() => {
     const loadTask = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return router.push("/login");
 
-      // Profile
+      // Load profile
       const { data: userProfile } = await supabase
         .from("profiles")
         .select("activated")
         .eq("user_id", session.user.id)
         .single();
-
       setProfile(userProfile);
 
-      // Task
+      // Load task
       const { data } = await supabase
         .from("tasks")
         .select("*")
         .eq("id", id)
         .single();
-
       setTask(data);
     };
 
@@ -49,6 +47,16 @@ export default function SingleTaskPage({ params }) {
         <p>You must activate your account to view this task.</p>
       </div>
     );
+
+  // Format deadline as "MM/DD/YYYY at HH:00 AM/PM"
+  const formatDeadline = (deadline) => {
+    const date = new Date(deadline);
+    const options = { month: '2-digit', day: '2-digit', year: 'numeric' };
+    const datePart = date.toLocaleDateString(undefined, options);
+    const hour = date.getHours() % 12 || 12;
+    const ampm = date.getHours() >= 12 ? 'PM' : 'AM';
+    return `${datePart} at ${hour}:00 ${ampm}`;
+  };
 
   // Handle bidding
   const handleBid = async () => {
@@ -68,8 +76,21 @@ export default function SingleTaskPage({ params }) {
       },
     ]);
 
-    alert("Bid submitted!");
+    // Show fun success message
+    const messages = [
+      "🎉 All the best! Your bid has been submitted successfully! 🚀",
+      "🔥 Go get it! Your bid is in!",
+      "💪 Fingers crossed! Bid submitted!",
+      "✨ Success! Your bid is now live!",
+      "🚀 All the best! Your bid is officially submitted!"
+    ];
+    const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+    setBidSuccess(randomMessage);
+
     setBidDescription("");
+
+    // Hide message after 5 seconds
+    setTimeout(() => setBidSuccess(""), 5000);
   };
 
   return (
@@ -78,15 +99,26 @@ export default function SingleTaskPage({ params }) {
         {task.title}
       </h1>
 
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow border">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow border space-y-2">
         <p><strong>Level:</strong> {task.level}</p>
         <p><strong>Word Count:</strong> {task.word_count}</p>
-        <p><strong>Deadline:</strong> {new Date(task.deadline).toLocaleString()}</p>
-        <p className="mt-4"><strong>Instructions:</strong></p>
-        <p className="text-gray-700 dark:text-gray-300">{task.instructions}</p>
+        <p><strong>Deadline:</strong> {formatDeadline(task.deadline)}</p>
+        <p><strong>Amount to be Paid:</strong> ksh {task.base_payout * 25}</p>
+
+        <div className="mt-4">
+          <p><strong>Instructions:</strong></p>
+          <p className="text-gray-700 dark:text-gray-300">{task.instructions}</p>
+        </div>
 
         {/* Bid section */}
         <div className="mt-6">
+          {/* Success message */}
+          {bidSuccess && (
+            <div className="mb-3 p-3 bg-green-100 text-green-800 rounded-lg font-semibold animate-pulse">
+              {bidSuccess}
+            </div>
+          )}
+
           <textarea
             value={bidDescription}
             onChange={(e) => setBidDescription(e.target.value)}
