@@ -44,10 +44,10 @@ export default function Home() {
           <a href="#about" className="text-white hover:text-[#FF7A00] transition-colors duration-300">About</a>
           <a href="/login" className="text-white hover:text-[#FF7A00] transition-colors duration-300">Log In</a>
           <a
-            href="/signup"
+            href="/login"
             className="px-4 py-2 bg-[#FF7A00] text-white rounded-lg hover:bg-[#E56700] shadow-md transition"
           >
-            Sign Up
+           Log In
           </a>
         </nav>
 
