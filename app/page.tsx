@@ -44,20 +44,20 @@ export default function Home() {
           <a href="#about" className="text-white hover:text-[#FF7A00] transition-colors duration-300">About</a>
           <a href="/login" className="text-white hover:text-[#FF7A00] transition-colors duration-300">Log In</a>
           <a
-            href="/login"
+            href="/signup"
             className="px-4 py-2 bg-[#FF7A00] text-white rounded-lg hover:bg-[#E56700] shadow-md transition"
           >
-           Log In
+            Sign Up
           </a>
         </nav>
 
         {/* Mobile Actions */}
         <div className="flex md:hidden items-center gap-3">
           <a
-            href="/signup"
+            href="/login"
             className="px-3 py-2 bg-[#FF7A00] text-white rounded-lg text-sm"
           >
-            Sign Up
+            Log In
           </a>
 
           {/* Mobile menu toggle */}
@@ -123,7 +123,7 @@ export default function Home() {
 
             <a
               href="#about"
-              className="w-full sm:w-auto px-8 py-4 border border-white text-lg rounded-xl hover:bg-white/20 transition transform hover:scale-105"
+              className=" text-white w-full sm:w-auto px-8 py-4 border border-white text-lg rounded-xl hover:bg-white/20 transition transform hover:scale-105"
             >
               Explore More
             </a>
