@@ -6,6 +6,7 @@ import FAQSection from "./components/Faq";
 import Footer from "./components/Footer";
 import { useState } from "react";
 import Testimonials from "./components/Testimonials";
+import Link from "next/link";
 
 
 export default function Home() {
@@ -42,6 +43,7 @@ export default function Home() {
         <nav className="hidden md:flex items-center gap-6 text-lg font-medium">
           <a href="#features" className="text-white hover:text-[#FF7A00] transition-colors duration-300">Features</a>
           <a href="#about" className="text-white hover:text-[#FF7A00] transition-colors duration-300">About</a>
+          <Link href="/news" className="text-white hover:text-[#FF7A00] transition-colors duration-300">News</Link>
           <a href="/login" className="text-white hover:text-[#FF7A00] transition-colors duration-300">Log In</a>
           <a
             href="/signup"
@@ -80,6 +82,7 @@ export default function Home() {
         >
           <a href="#features" className="text-white hover:text-[#FF7A00] transition-colors duration-300">Features</a>
           <a href="#about" className="text-white hover:text-[#FF7A00] transition-colors duration-300">About</a>
+          <Link href="/news" className="text-white hover:text-[#FF7A00] transition-colors duration-300">News</Link>
           <a href="/login" className="text-white hover:text-[#FF7A00] transition-colors duration-300">Log In</a>
         </motion.nav>
       )}

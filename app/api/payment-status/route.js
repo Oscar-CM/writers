@@ -1,21 +1,23 @@
-'use server';
-
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { db } from '@/lib/db/index';
+import { purchases } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
 
 export async function GET(req) {
+  const session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   const id = new URL(req.url).searchParams.get('id');
+  if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
 
-  const { data } = await supabaseAdmin
-    .from('products_purchases')
-    .select('status')
-    .eq('id', id)
-    .single();
+  const [purchase] = await db
+    .select({ status: purchases.status })
+    .from(purchases)
+    .where(eq(purchases.id, id));
 
-  return NextResponse.json(data);
+  if (!purchase) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+  return NextResponse.json({ status: purchase.status });
 }

@@ -1,207 +1,146 @@
 'use client';
 
-import { useState, useEffect } from "react";
-import { supabase } from "../../../utils/supabaseClient";
-import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { Loader2, CheckCircle } from 'lucide-react';
+
+const COUNTRY_CODES = [
+  { code: '+254', country: 'Kenya' },
+  { code: '+1', country: 'USA' },
+  { code: '+44', country: 'UK' },
+  { code: '+91', country: 'India' },
+  { code: '+234', country: 'Nigeria' },
+  { code: '+255', country: 'Tanzania' },
+  { code: '+250', country: 'Rwanda' },
+  { code: '+256', country: 'Uganda' },
+  { code: '+263', country: 'Zimbabwe' },
+  { code: '+27', country: 'South Africa' },
+];
 
 export default function ApplyTrainingPage() {
-  const router = useRouter();
-  const [profile, setProfile] = useState(null);
+  const { data: session } = useSession();
+  const [form, setForm] = useState({ countryCode: '+254', phoneNumber: '', email: '', experienceLevel: '', goals: '' });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [messageType, setMessageType] = useState(null);
+  const [submitted, setSubmitted] = useState(false);
 
-  // Form fields
-  const [countryCode, setCountryCode] = useState("+254");
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [email, setEmail] = useState('');
-  const [experienceLevel, setExperienceLevel] = useState('');
-  const [goals, setGoals] = useState('');
+  const set = (field) => (e) => setForm(f => ({ ...f, [field]: e.target.value }));
 
-  const countryCodes = [
-    { code: "+254", country: "Kenya" },
-    { code: "+1", country: "USA" },
-    { code: "+44", country: "UK" },
-    { code: "+91", country: "India" },
-    { code: "+234", country: "Nigeria" },
-    { code: "+255", country: "Tanzania" },
-    { code: "+250", country: "Rwanda" },
-    { code: "+256", country: "Uganda" },
-    { code: "+263", country: "Zimbabwe" },
-    { code: "+27", country: "South Africa" },
-    // Add more as needed
-  ];
-
-  // Load user profile
-  useEffect(() => {
-    const loadProfile = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return router.push("/login");
-
-      const { data } = await supabase
-        .from("profiles")
-        .select("full_name, user_id")
-        .eq("user_id", session.user.id)
-        .single();
-
-      setProfile(data);
-    };
-
-    loadProfile();
-  }, [router]);
-
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage(null);
 
-    if (!phoneNumber || !email || !experienceLevel || !goals) {
-      setMessage("All fields are required.");
-      setMessageType("error");
-      return;
-    }
-
-    // Basic phone validation (number length only)
-    if (!/^\d{6,15}$/.test(phoneNumber)) {
-      setMessage("Please enter a valid phone number.");
-      setMessageType("error");
+    if (!/^\d{6,15}$/.test(form.phoneNumber)) {
+      setMessage('Please enter a valid phone number.');
+      setMessageType('error');
       return;
     }
 
     setLoading(true);
 
-    const { error } = await supabase.from("training_applications").insert([{
-      user_id: profile.user_id,
-      full_name: profile.full_name,
-      phone_number: `${countryCode}${phoneNumber}`,
-      email: email,
-      experience_level: experienceLevel,
-      goals: goals,
-      submitted_at: new Date()
-    }]);
+    const res = await fetch('/api/training', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        phoneNumber: `${form.countryCode}${form.phoneNumber}`,
+        email: form.email,
+        experienceLevel: form.experienceLevel,
+        goals: form.goals,
+      }),
+    });
 
-    if (error) {
-      setMessage("Failed to submit application. Please try again.");
-      setMessageType("error");
-      setLoading(false);
+    const data = await res.json();
+    setLoading(false);
+
+    if (!res.ok) {
+      setMessage(data.error || 'Submission failed. Please try again.');
+      setMessageType('error');
       return;
     }
 
-    setMessage("Your training application has been submitted! ✅ Our will get in touch.");
-    setMessageType("success");
-    setLoading(false);
-
-    // Clear form
-    setPhoneNumber('');
-    setEmail('');
-    setExperienceLevel('');
-    setGoals('');
+    setSubmitted(true);
   };
 
-  if (!profile) return <p className="text-center mt-10">Loading...</p>;
+  if (submitted) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center space-y-4">
+        <CheckCircle size={52} className="text-green-500" />
+        <h2 className="text-2xl font-bold text-gray-800">Application Submitted!</h2>
+        <p className="text-gray-500 max-w-sm">
+          Your training application has been received. Our team will review it and get in touch with you.
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 px-4 py-8">
-      <div className="max-w-3xl mx-auto space-y-6">
-        <h1 className="text-3xl sm:text-4xl font-bold text-center text-gray-900 dark:text-white">
-          Apply for Training
-        </h1>
+    <div className="max-w-2xl mx-auto space-y-6 py-2">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Apply for Training</h1>
+        <p className="text-sm text-gray-500 mt-1">Trainings are conducted based on need with one-on-one sessions.</p>
+      </div>
 
-        <div className="p-4 bg-yellow-50 dark:bg-yellow-900 border border-yellow-400 rounded-lg text-center">
-          <p className="font-semibold">Note:</p>
-          <p>
-            Trainings are conducted depending on the need. You will also have a one-on-one session with our trainers.
-          </p>
+      <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 text-sm text-amber-800">
+        <strong>Note:</strong> You will be contacted by our training team after your application is reviewed.
+      </div>
+
+      {message && (
+        <div className={`p-4 rounded-xl text-sm ${messageType === 'error' ? 'bg-red-50 text-red-700 border border-red-300' : 'bg-green-50 text-green-700 border border-green-300'}`}>
+          {message}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-xl p-6 space-y-4 shadow-sm">
+
+        {/* Phone */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">Phone Number</label>
+          <div className="flex gap-2">
+            <select value={form.countryCode} onChange={set('countryCode')}
+              className="px-2 py-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-400">
+              {COUNTRY_CODES.map(({ code, country }) => (
+                <option key={code} value={code}>{country} ({code})</option>
+              ))}
+            </select>
+            <input type="tel" value={form.phoneNumber} onChange={set('phoneNumber')}
+              placeholder="7XXXXXXXX" required
+              className="flex-1 px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" />
+          </div>
         </div>
 
-        {message && (
-          <div className={`p-4 rounded-lg text-center ${
-            messageType === "success" ? "bg-green-100 text-green-700 border border-green-300" : ""
-          } ${messageType === "error" ? "bg-red-100 text-red-700 border border-red-400" : ""}`}>
-            {message}
-          </div>
-        )}
+        {/* Email */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">Email Address</label>
+          <input type="email" value={form.email} onChange={set('email')} placeholder="you@example.com" required
+            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" />
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+        {/* Experience level */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">Experience Level</label>
+          <select value={form.experienceLevel} onChange={set('experienceLevel')} required
+            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400">
+            <option value="">Select your level</option>
+            <option value="Beginner">Beginner</option>
+            <option value="Intermediate">Intermediate</option>
+            <option value="Advanced">Advanced</option>
+          </select>
+        </div>
 
-          {/* Phone Number */}
-          <div>
-            <label className="block text-gray-700 dark:text-gray-300 font-semibold">Phone Number</label>
-            <div className="flex gap-2 mt-1">
-              <select
-                className="p-2 rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900"
-                value={countryCode}
-                onChange={(e) => setCountryCode(e.target.value)}
-                required
-              >
-                {countryCodes.map(({ code, country }) => (
-                  <option key={code} value={code}>
-                    {country} ({code})
-                  </option>
-                ))}
-              </select>
-              <input
-                type="tel"
-                className="flex-1 p-2 rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="Enter your number"
-                required
-              />
-            </div>
-          </div>
+        {/* Goals */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">Your Goals & Expectations</label>
+          <textarea value={form.goals} onChange={set('goals')} rows={4} required
+            placeholder="What do you hope to gain from this training? What specific skills are you looking to develop?"
+            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none" />
+        </div>
 
-          {/* Email */}
-          <div>
-            <label className="block text-gray-700 dark:text-gray-300 font-semibold">Email Address</label>
-            <input
-              type="email"
-              className="w-full mt-1 p-2 rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              required
-            />
-          </div>
-
-          {/* Experience Level */}
-          <div>
-            <label className="block text-gray-700 dark:text-gray-300 font-semibold">Experience Level</label>
-            <select
-              className="w-full mt-1 p-2 rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900"
-              value={experienceLevel}
-              onChange={(e) => setExperienceLevel(e.target.value)}
-              required
-            >
-              <option value="">Select your level</option>
-              <option value="Beginner">Beginner</option>
-              <option value="Intermediate">Intermediate</option>
-              <option value="Advanced">Advanced</option>
-            </select>
-          </div>
-
-          {/* Goals */}
-          <div>
-            <label className="block text-gray-700 dark:text-gray-300 font-semibold">Your Goals / Expectations</label>
-            <textarea
-              className="w-full mt-1 p-2 rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900"
-              value={goals}
-              onChange={(e) => setGoals(e.target.value)}
-              rows={4}
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 mt-2 bg-[#FF7A00] text-white rounded-xl font-bold hover:bg-[#e96d00] flex items-center justify-center gap-2"
-          >
-            {loading ? <Loader2 className="animate-spin" /> : "Submit Application"}
-          </button>
-        </form>
-      </div>
+        <button type="submit" disabled={loading}
+          className="w-full py-3 bg-[#FF7A00] hover:bg-[#e56d00] text-white font-bold rounded-xl flex items-center justify-center gap-2 transition disabled:opacity-60">
+          {loading ? <Loader2 size={18} className="animate-spin" /> : 'Submit Application'}
+        </button>
+      </form>
     </div>
   );
 }
