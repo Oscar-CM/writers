@@ -19,6 +19,7 @@ import {
   ShieldCheck,
   KeySquare,
   MessageSquare,
+  Newspaper,
 } from 'lucide-react';
 
 export default function DashboardLayout({ children }) {
@@ -48,6 +49,7 @@ export default function DashboardLayout({ children }) {
     { label: 'Resources', icon: BookOpen, path: '/dashboard/writing-resources' },
     { label: 'Writing Tools', icon: Wrench, path: '/dashboard/writing-tools' },
     { label: 'Ebooks', icon: BookMarked, path: '/dashboard/books' },
+    { label: 'News', icon: Newspaper, path: '/news', external: true },
     { label: 'Extras', icon: Globe, path: '/dashboard/extras' },
     { label: 'Profile', icon: User, path: '/dashboard/profile' },
   ];
@@ -83,12 +85,16 @@ export default function DashboardLayout({ children }) {
           <h2 className="text-xl font-bold text-[#FF7A00] mb-8 mt-2">WriteMaster</h2>
 
           <nav className="space-y-0.5 flex-1">
-            {navItems.map(({ label, icon: Icon, path, activationItem }) => {
-              const active = isActive(path);
+            {navItems.map(({ label, icon: Icon, path, activationItem, external }) => {
+              const active = !external && isActive(path);
               return (
                 <button
                   key={label}
-                  onClick={() => { setSidebarOpen(false); router.push(path); }}
+                  onClick={() => {
+                    setSidebarOpen(false);
+                    if (external) window.open(path, '_blank');
+                    else router.push(path);
+                  }}
                   className={`flex items-center w-full px-3 py-2.5 text-left rounded-lg transition text-sm
                     ${active
                       ? 'bg-[#1F1F22] text-[#FF7A00] font-semibold'
@@ -98,7 +104,8 @@ export default function DashboardLayout({ children }) {
                     }`}
                 >
                   <Icon className="mr-3 shrink-0" size={18} />
-                  {label}
+                  <span className="flex-1">{label}</span>
+                  {external && <span className="text-[10px] text-gray-600 ml-1">↗</span>}
                 </button>
               );
             })}

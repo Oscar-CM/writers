@@ -207,6 +207,9 @@ INSERT INTO settings (key, value) VALUES ('activation_fee', '700')   ON CONFLICT
 INSERT INTO settings (key, value) VALUES ('resources_fee',  '500')   ON CONFLICT (key) DO NOTHING;
 INSERT INTO settings (key, value) VALUES ('activation_description', 'One-time fee to unlock writing tasks and full platform access.') ON CONFLICT (key) DO NOTHING;
 
+-- Add download_count to books if not already present
+ALTER TABLE books ADD COLUMN IF NOT EXISTS download_count INTEGER DEFAULT 0;
+
 -- ─── Indexes ──────────────────────────────────────────────────────────────────
 CREATE INDEX IF NOT EXISTS idx_profiles_user_id ON profiles(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_tasks_user_id ON user_tasks(user_id);

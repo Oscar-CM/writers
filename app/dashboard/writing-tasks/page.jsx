@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Lock, Clock, FileText, DollarSign, ChevronRight, Search, Loader2 } from "lucide-react";
+import { Lock, Clock, FileText, ChevronRight, Search, Loader2 } from "lucide-react";
 
 function timeUntil(d) {
   if (!d) return null;
@@ -101,7 +101,7 @@ export default function WritingTasksPage() {
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {displayed.map(task => {
-              const payout = task.basePayout ? (parseFloat(task.basePayout) * 25).toFixed(0) : null;
+              const payout = task.basePayout ? (parseFloat(task.basePayout) * 120).toFixed(0) : null;
               const timer = timeUntil(task.deadline);
               return (
                 <Link key={task.id} href={`/dashboard/writing-tasks/${task.id}`}>
@@ -137,8 +137,8 @@ export default function WritingTasksPage() {
                         </span>
                       )}
                       {payout && (
-                        <span className="flex items-center gap-1 text-green-600 font-semibold">
-                          <DollarSign size={12} /> KES {payout}
+                        <span className="text-green-600 font-semibold">
+                          KES {payout}
                         </span>
                       )}
                     </div>

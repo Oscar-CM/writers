@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { use } from "react";
 import {
-  Clock, FileText, DollarSign, AlignLeft, Send,
+  Clock, FileText, AlignLeft, Send,
   CheckCircle, AlertCircle, Loader2, ArrowLeft, Star
 } from "lucide-react";
 import Link from "next/link";
@@ -106,7 +106,7 @@ export default function TaskDetailPage({ params }) {
     </div>
   );
 
-  const payout = task.basePayout ? (parseFloat(task.basePayout) * 25).toFixed(0) : null;
+  const payout = task.basePayout ? (parseFloat(task.basePayout) * 120).toFixed(0) : null;
   const remaining = timeUntil(task.deadline);
   const isUrgent = remaining && remaining.includes("h remaining") && !remaining.includes("d");
 
@@ -143,7 +143,7 @@ export default function TaskDetailPage({ params }) {
             label="Word Count" value={`${task.wordCount.toLocaleString()} words`} />
         )}
         {payout && (
-          <InfoCard icon={<DollarSign size={18} className="text-green-500" />}
+          <InfoCard icon={<span className="text-xs font-black text-green-600">KES</span>}
             label="Payout" value={`KES ${payout}`} sub="On completion" />
         )}
       </div>

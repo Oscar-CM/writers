@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Clock, FileText, DollarSign, CheckCircle, Loader2, Inbox, Send, X } from "lucide-react";
+import { Clock, FileText, CheckCircle, Loader2, Inbox, Send, X } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
@@ -88,7 +88,7 @@ export default function MyTasksPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {tasks.map((task, i) => {
-            const payout = task.basePayout ? (parseFloat(task.basePayout) * 25).toFixed(0) : null;
+            const payout = task.basePayout ? (parseFloat(task.basePayout) * 120).toFixed(0) : null;
             const timer = timeLeft(task.deadline);
             const isDelivered = deliveredIds.has(task.taskId) || task.delivered;
 
@@ -113,7 +113,7 @@ export default function MyTasksPage() {
 
                 <div className="flex flex-wrap gap-3 text-sm">
                   {task.wordCount && <span className="flex items-center gap-1 text-gray-500"><FileText size={14} /> {task.wordCount.toLocaleString()} words</span>}
-                  {payout && <span className="flex items-center gap-1 text-green-600 font-semibold"><DollarSign size={14} /> KES {payout}</span>}
+                  {payout && <span className="text-green-600 font-semibold text-sm">KES {payout}</span>}
                 </div>
 
                 {task.description && (

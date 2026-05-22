@@ -152,8 +152,93 @@
   100% { transform: translateX(-50%); }
 }
 .animate-marquee {
-  animation: marquee 30s linear infinite;
+  animation: marquee 18s linear infinite;
 }
 .animate-marquee:hover {
   animation-play-state: paused;
+}
+/* Faster on mobile */
+@media (max-width: 640px) {
+  .animate-marquee {
+    animation-duration: 10s;
+  }
+}
+
+/* ── Article body typography ────────────────────────────────────────────── */
+.article-body {
+  font-size: 1.125rem;   /* 18px */
+  line-height: 1.85;
+  color: #1a1a1a;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+.article-body p {
+  margin-bottom: 1.6em;
+}
+.article-body h1, .article-body h2 {
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 2.2em 0 0.8em;
+  color: #111;
+}
+.article-body h1 { font-size: 1.8rem; }
+.article-body h2 { font-size: 1.45rem; }
+.article-body h3 {
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin: 1.8em 0 0.6em;
+  color: #111;
+}
+.article-body strong, .article-body b { font-weight: 700; color: #111; }
+.article-body em, .article-body i { font-style: italic; }
+.article-body a {
+  color: #FF7A00;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.article-body a:hover { color: #e56d00; }
+.article-body img {
+  max-width: 100%;
+  border-radius: 12px;
+  margin: 2em auto;
+  display: block;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+}
+.article-body ul, .article-body ol {
+  margin: 1.4em 0;
+  padding-left: 1.8em;
+}
+.article-body li {
+  margin-bottom: 0.5em;
+}
+.article-body blockquote {
+  border-left: 4px solid #FF7A00;
+  margin: 2em 0;
+  padding: 0.8em 1.4em;
+  background: #fff8f3;
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+  color: #555;
+  font-size: 1.1rem;
+}
+.article-body hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 2.5em 0;
+}
+.article-body pre, .article-body code {
+  font-family: 'Courier New', Courier, monospace;
+  background: #f3f4f6;
+  border-radius: 6px;
+  font-size: 0.9em;
+}
+.article-body pre { padding: 1.2em; overflow-x: auto; margin: 1.5em 0; }
+.article-body code { padding: 0.15em 0.4em; }
+
+@media (max-width: 640px) {
+  .article-body { font-size: 1rem; line-height: 1.75; }
+  .article-body h1 { font-size: 1.5rem; }
+  .article-body h2 { font-size: 1.25rem; }
 }

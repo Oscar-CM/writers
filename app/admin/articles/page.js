@@ -13,6 +13,7 @@ export default function AdminArticles() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [uploadingImg, setUploadingImg] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
   const [insertUrl, setInsertUrl] = useState('');
   const [coverPreview, setCoverPreview] = useState('');
   const [showPreview, setShowPreview] = useState(false);
@@ -25,6 +26,47 @@ export default function AdminArticles() {
   const [showAdSlots, setShowAdSlots] = useState(false);
 
   const imgRef = useRef();
+  const coverRef = useRef();
+  const textareaRef = useRef();
+
+  // Insert/wrap HTML in the content textarea at cursor position
+  const format = (type) => {
+    const ta = textareaRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end   = ta.selectionEnd;
+    const sel   = form.content.substring(start, end);
+    const before = form.content.substring(0, start);
+    const after  = form.content.substring(end);
+
+    const wrapLines = (tag) => sel
+      ? sel.split('\n').filter(Boolean).map(l => `  <li>${l.trim()}</li>`).join('\n')
+      : `  <li>First item</li>\n  <li>Second item</li>\n  <li>Third item</li>`;
+
+    const insertions = {
+      bold:       `<strong>${sel || 'bold text'}</strong>`,
+      italic:     `<em>${sel || 'italic text'}</em>`,
+      h2:         `\n<h2>${sel || 'Section heading'}</h2>\n`,
+      h3:         `\n<h3>${sel || 'Sub-heading'}</h3>\n`,
+      ul:         `\n<ul>\n${wrapLines()}\n</ul>\n`,
+      ol:         `\n<ol>\n${wrapLines()}\n</ol>\n`,
+      blockquote: `\n<blockquote>${sel || 'Quote text here'}</blockquote>\n`,
+      hr:         `\n<hr>\n`,
+      p:          `\n<p>${sel || 'New paragraph'}</p>\n`,
+    };
+
+    const insert = insertions[type];
+    if (!insert) return;
+
+    const newContent = before + insert + after;
+    setForm(f => ({ ...f, content: newContent }));
+
+    setTimeout(() => {
+      ta.focus();
+      const pos = start + insert.length;
+      ta.setSelectionRange(pos, pos);
+    }, 0);
+  };
 
   const load = () => {
     fetch('/api/admin/articles').then(r => r.json()).then(d => { setArticles(d.articles || []); setLoading(false); });
@@ -116,6 +158,20 @@ export default function AdminArticles() {
     setInsertUrl('');
   };
 
+  const uploadCover = async (file) => {
+    if (!file) return;
+    setUploadingCover(true);
+    const fd = new FormData();
+    fd.append('cover', file);
+    const res = await fetch('/api/admin/articles/cover', { method: 'POST', body: fd });
+    const d = await res.json();
+    setUploadingCover(false);
+    if (d.key) {
+      setForm(f => ({ ...f, coverImage: d.key }));
+      setCoverPreview(d.url || '');
+    }
+  };
+
   const openComments = async (article) => {
     setViewComments(article);
     const res = await fetch(`/api/admin/articles/${article.id}`);
@@ -200,20 +256,35 @@ export default function AdminArticles() {
               className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none" />
           </div>
 
-          {/* Cover image */}
+          {/* Cover image upload */}
           <div>
-            <label className="text-xs font-semibold text-gray-500 block mb-1">Cover Image (R2 key)</label>
-            <input value={form.coverImage} onChange={e => {
-              const v = e.target.value;
-              set('coverImage')(e);
-              setCoverPreview(v ? `${process.env.NEXT_PUBLIC_R2_PUBLIC_URL || ''}/${v}` : '');
-            }} placeholder="covers/xxxxxxxx.jpg"
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" />
-            {coverPreview && (
-              <div className="mt-2 rounded-lg overflow-hidden border border-gray-200 h-28">
-                <img src={coverPreview} alt="Cover preview" className="w-full h-full object-cover"
-                  onError={() => setCoverPreview('')} />
+            <label className="text-xs font-semibold text-gray-500 block mb-2">Cover Image</label>
+            <input type="file" ref={coverRef} accept="image/*" className="hidden"
+              onChange={e => uploadCover(e.target.files[0])} />
+
+            {coverPreview ? (
+              <div className="relative rounded-xl overflow-hidden border border-gray-200 h-36 group">
+                <img src={coverPreview} alt="Cover preview" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
+                  <button onClick={() => coverRef.current?.click()} disabled={uploadingCover}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white text-gray-800 text-xs font-semibold rounded-lg hover:bg-gray-100 transition">
+                    {uploadingCover ? <Loader2 size={12} className="animate-spin" /> : <Upload size={12} />}
+                    Replace
+                  </button>
+                  <button onClick={() => { setForm(f => ({ ...f, coverImage: '' })); setCoverPreview(''); }}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-red-500 text-white text-xs font-semibold rounded-lg hover:bg-red-600 transition">
+                    <X size={12} /> Remove
+                  </button>
+                </div>
               </div>
+            ) : (
+              <button onClick={() => coverRef.current?.click()} disabled={uploadingCover}
+                className="w-full h-28 border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-orange-400 hover:bg-orange-50/50 transition text-gray-400 hover:text-orange-500 disabled:opacity-50">
+                {uploadingCover
+                  ? <><Loader2 size={22} className="animate-spin" /><span className="text-xs">Uploading...</span></>
+                  : <><ImageIcon size={22} /><span className="text-xs font-semibold">Click to upload cover image</span><span className="text-[10px]">JPG, PNG, WebP · Goes to covers/ bucket</span></>
+                }
+              </button>
             )}
           </div>
 
@@ -240,16 +311,63 @@ export default function AdminArticles() {
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-semibold text-gray-500">Content * (HTML supported)</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-semibold text-gray-500">Content *</label>
               <button onClick={() => setShowPreview(!showPreview)}
                 className="flex items-center gap-1 text-xs text-indigo-500 hover:text-indigo-700 font-medium">
-                {showPreview ? <><Code size={11} /> Edit</> : <><Monitor size={11} /> Preview</>}
+                {showPreview ? <><Code size={11} /> Raw HTML</> : <><Monitor size={11} /> Preview</>}
               </button>
             </div>
-            <textarea value={form.content} onChange={set('content')} rows={14}
-              placeholder="Write your article here... HTML is supported: <b>, <i>, <h2>, <ul>, <a href=''>, <img src=''>"
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-y font-mono" />
+
+            {/* Formatting toolbar */}
+            <div className="flex flex-wrap gap-1 mb-1.5 p-1.5 bg-gray-50 border border-gray-200 rounded-lg border-b-0 rounded-b-none">
+              {[
+                { id: 'bold',       label: 'B',    title: 'Bold',            cls: 'font-black' },
+                { id: 'italic',     label: 'I',    title: 'Italic',          cls: 'italic' },
+                { id: 'h2',         label: 'H2',   title: 'Heading 2',       cls: 'font-bold text-xs' },
+                { id: 'h3',         label: 'H3',   title: 'Heading 3',       cls: 'font-bold text-xs' },
+              ].map(b => (
+                <button key={b.id} type="button" onClick={() => format(b.id)} title={b.title}
+                  className={`px-2.5 py-1 text-sm bg-white border border-gray-200 rounded hover:bg-orange-50 hover:border-orange-300 transition ${b.cls}`}>
+                  {b.label}
+                </button>
+              ))}
+
+              <span className="w-px bg-gray-200 self-stretch mx-0.5" />
+
+              <button type="button" onClick={() => format('ul')} title="Bullet list"
+                className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold bg-white border border-gray-200 rounded hover:bg-orange-50 hover:border-orange-300 transition">
+                <span className="text-base leading-none">•</span> List
+              </button>
+              <button type="button" onClick={() => format('ol')} title="Numbered list"
+                className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold bg-white border border-gray-200 rounded hover:bg-orange-50 hover:border-orange-300 transition">
+                <span>1.</span> List
+              </button>
+              <button type="button" onClick={() => format('blockquote')} title="Block quote"
+                className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold bg-white border border-gray-200 rounded hover:bg-orange-50 hover:border-orange-300 transition">
+                <span className="text-orange-400 font-black">&ldquo;</span> Quote
+              </button>
+
+              <span className="w-px bg-gray-200 self-stretch mx-0.5" />
+
+              <button type="button" onClick={() => format('p')} title="Paragraph"
+                className="px-2.5 py-1 text-xs font-semibold bg-white border border-gray-200 rounded hover:bg-orange-50 hover:border-orange-300 transition">
+                ¶ Para
+              </button>
+              <button type="button" onClick={() => format('hr')} title="Horizontal rule"
+                className="px-2.5 py-1 text-xs font-semibold bg-white border border-gray-200 rounded hover:bg-orange-50 hover:border-orange-300 transition">
+                — Line
+              </button>
+            </div>
+
+            <textarea
+              ref={textareaRef}
+              value={form.content}
+              onChange={set('content')}
+              rows={14}
+              placeholder="Start writing... Use the toolbar above for formatting, or write HTML directly."
+              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg rounded-t-none text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-y font-mono"
+            />
           </div>
 
           <div className="flex items-center gap-4">

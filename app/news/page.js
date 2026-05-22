@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { BookOpen, Clock, Eye, ArrowRight, PenLine, Rss } from 'lucide-react';
+import NewsNav from './_components/NewsNav';
 
 async function getArticles() {
   try {
@@ -39,29 +40,8 @@ export default async function NewsPage() {
   return (
     <div className="min-h-screen bg-[#F8F6F1]">
 
-      {/* ── HEADER ─────────────────────────────────────────────────────────── */}
-      <header className="bg-[#1A0A00] text-white sticky top-0 z-40 border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-5 py-3 flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2 text-[#FF7A00] font-extrabold text-lg tracking-tight shrink-0">
-            <PenLine size={20} />
-            WriteMaster
-          </Link>
-
-          {/* Center: publication name */}
-          <div className="hidden md:block text-center">
-            <p className="text-xs text-white/40 uppercase tracking-[0.2em] font-medium">The Writing World</p>
-          </div>
-
-          <nav className="flex items-center gap-4 text-sm font-medium">
-            <Link href="/" className="text-white/60 hover:text-white transition hidden md:block">Home</Link>
-            <Link href="/login" className="text-white/60 hover:text-white transition">Sign In</Link>
-            <Link href="/signup"
-              className="px-4 py-1.5 bg-[#FF7A00] hover:bg-[#e56d00] text-white rounded-lg transition text-xs font-bold">
-              Join Free
-            </Link>
-          </nav>
-        </div>
-      </header>
+      {/* ── HEADER (session-aware client component) ─────────────────────── */}
+      <NewsNav />
 
       {/* ── HERO MASTHEAD ──────────────────────────────────────────────────── */}
       <div className="bg-[#1A0A00] text-white overflow-hidden">

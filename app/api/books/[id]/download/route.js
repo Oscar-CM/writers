@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db/index';
 import { books, purchases } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import { getDownloadUrl } from '@/lib/r2';
 
 export async function GET(req, { params }) {
@@ -16,7 +16,7 @@ export async function GET(req, { params }) {
   if (!book) return NextResponse.json({ error: 'Book not found.' }, { status: 404 });
   if (!book.pdfKey) return NextResponse.json({ error: 'Download not available yet.' }, { status: 404 });
 
-  // Check access
+  // Check access for paid books
   if (!book.isFree) {
     const [purchase] = await db
       .select()
@@ -33,9 +33,14 @@ export async function GET(req, { params }) {
     }
   }
 
+  // Increment download count (fire-and-forget, doesn't block the response)
+  db.update(books)
+    .set({ downloadCount: sql`${books.downloadCount} + 1` })
+    .where(eq(books.id, id))
+    .catch(() => {});
+
   // Generate presigned URL valid 15 minutes
   const url = await getDownloadUrl(book.pdfKey, 900);
 
-  // Redirect to the presigned URL — browser starts download immediately
   return NextResponse.redirect(url);
 }

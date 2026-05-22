@@ -137,8 +137,8 @@ export default function BooksPage() {
 
   const downloadBook = async (bookId) => {
     setDownloading(bookId);
-    // Navigate to download URL — server checks access and redirects to R2 presigned URL
-    window.location.href = `/api/books/${bookId}/download`;
+    // Opens in new tab — server checks access and redirects to the R2 presigned URL
+    window.open(`/api/books/${bookId}/download`, '_blank');
     setTimeout(() => setDownloading(null), 3000);
   };
 
